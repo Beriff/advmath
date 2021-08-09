@@ -54,7 +54,7 @@ class Int extends amNumber {
         if (val % 1 == 0) {
             super(val);
         } else {
-            throw new TypeError("Passed number type is not integer, please use New(string)");
+            throw new TypeError("Passed number type is not an integer, please use New(string)");
         }
         
     }
@@ -63,14 +63,22 @@ class Int extends amNumber {
         return this.value;
     };
 
+    public Abs(): Int {
+        if (this.GetValue() >= 0) {
+            return this;
+        } else {
+            return new Int(this.GetValue() + this.GetValue() * 2);
+        }
+    }
+
     public static IsInt(suspect: false | Int): suspect is Int {
         return !!suspect;
     }
 
-    public static New (to_parse: string): Int | false {
+    public static New (to_parse: string): Int {
         if(!Number.isNaN(Number.parseInt(to_parse))) {
             return new Int(Number.parseInt(to_parse));
-        } else { return false; };
+        } else { throw new TypeError("Int.New(): incorrect string") };
     };
 
     public ToString(): string {
@@ -90,10 +98,10 @@ class Float extends amNumber {
         return new Int(this.value - Math.trunc(this.value))
     };
 
-    public static New (to_parse: string): Float | false {
+    public static New (to_parse: string): Float {
         if(!Number.isNaN(Number.parseInt(to_parse))) {
             return new Float(Number.parseInt(to_parse));
-        } else { return false; };
+        } else { throw new TypeError("Float.New(): incorrect string") };
     };
 
     public ToString(): string {
@@ -107,16 +115,23 @@ class Fraction extends amNumber {
     protected value: number[];
 
     ToString(): string {
-        throw new Error("Method not implemented.");
+        return `(${this.value[0]}/${this.value[1]})`;
     }
 
     constructor (value1: Int, value2: Int) {
         super([value1.GetValue(), value2.GetValue()])
     }
 
-    public static New(to_parse: string): false | Numeric {
+    public Numerator(): Int {
+        return new Int(this.value[1]);
+    };
+
+    public Denominator(): Int {
+        return new Int(this.value[0])
+    }
+
+    public static New(to_parse: string): Fraction {
         if (to_parse.includes("/")) {
-            let sides: [Int, Int];
             let parse_strings: string[] = to_parse.split("/");
             if (parse_strings.length == 2) {
 
@@ -124,20 +139,44 @@ class Fraction extends amNumber {
                 let opt2: false | Int = Int.New(parse_strings[1]);
 
                 if ( Int.IsInt(opt1) && Int.IsInt(opt2) ) {
-                    sides[0] = opt1;
-                    sides[1] = opt2;
+                    if ( opt2.IsEqual( new Int(0) ) ) throw new Error("Fraction numerator cannot be zero.")
+                    return new Fraction(opt1, opt2);
                 };
             };
 
         } else {
-            return false;
+            throw new TypeError("Fraction.New(): Incorrect string; Right string format is x/y.")
         };
     }
-    public GetValue(): number[] {
-        throw new Error("Method not implemented.");
+
+    public Negate(): Fraction {
+        this.value[0] = -this.value[0];
+        return this;
     }
+
+    public Reciprocal(): Fraction {
+        return new Fraction(new Int(this.value[1]), new Int(this.value[0]));
+    }
+
+    public IsProper(): boolean {
+        return this.Denominator().Abs().GetValue() < this.Numerator().GetValue();
+    }
+
+    public Percent(percentage: Int): Fraction {
+        return new Fraction(percentage, new Int(100));
+    }
+
+    public static UnitFraction(numerator: Int): Fraction {
+        return new Fraction(new Int(1), numerator);
+    }
+
+    public GetValue(): number {
+        return this.value[0] / this.value[1];
+    }
+
+
 
 }
 
-console.log(new Int(5).GetValue());
+console.log(Fraction.New("1/2").Reciprocal().IsProper());
 
