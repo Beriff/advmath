@@ -368,6 +368,30 @@ class Imaginary extends amNumber {
     }
 }
 
+class Complex extends amNumber {
+
+    protected readonly real: amNumber;
+    protected readonly imaginary: Imaginary;
+
+    public GetValue(): number {
+        throw TypeError("Attempt to convert imaginary/complex value to a non-complex value. Please use GetValueComplex() or ToFloat() instead.");
+    }
+    public ToString(): string {
+        return `${this.real.ToString()} + ${this.imaginary.ToString()}`;
+    }
+
+    constructor(real: Int | Float, img: Imaginary) {
+        super(real.GetValue())
+        this.real = real;
+        this.imaginary = img;
+    }
+
+    public AddC(other: Complex): Complex {
+        return new Complex(this.real.Add(new Float(other.real.GetValue())), this.imaginary.AddImaginary(other.imaginary));
+    }
+    
+}
+
 let myFraction = new CompositeFraction<Fraction>(
     new Fraction( new Int(1), new Int(2)),
     new Fraction( new Int(1), new Int(3)),
