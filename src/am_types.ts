@@ -129,6 +129,10 @@ class Int extends amNumber {
         return this.value;
     };
 
+    public ToFloat(): Float {
+        return new Float(this.value)
+    }
+
     public Abs(): Int {
         if (this.GetValue() >= 0) {
             return this;
@@ -160,6 +164,10 @@ class Float extends amNumber {
     public GetValue(): number {
         return this.value;
     };
+
+    public ToFloat(): Float {
+        return this
+    }
 
     public AfterPoint(): Int {
         return new Int(this.value - Math.trunc(this.value))
@@ -318,11 +326,10 @@ class CompositeFraction<Type extends amNumber> extends amNumber {
     
 }
 
-class Imaginary extends amNumber {
+class Imaginary {
     protected readonly value: number;
 
     constructor(val: number) {
-        super(val);
         this.value = val;
     }
 
@@ -330,9 +337,6 @@ class Imaginary extends amNumber {
 
     public ToString(): string {
         return `${this.value}i`;
-    }
-    public GetValue(): number {
-        throw TypeError("Attempt to convert imaginary/complex value to a non-complex value. Please use GetValueComplex() or ToFloat() instead.");
     }
 
     public Negate(): Imaginary {
@@ -368,20 +372,16 @@ class Imaginary extends amNumber {
     }
 }
 
-class Complex extends amNumber {
+class Complex {
 
-    protected readonly real: amNumber;
+    protected readonly real: Int | Float;
     protected readonly imaginary: Imaginary;
 
-    public GetValue(): number {
-        throw TypeError("Attempt to convert imaginary/complex value to a non-complex value. Please use GetValueComplex() or ToFloat() instead.");
-    }
     public ToString(): string {
         return `${this.real.ToString()} + ${this.imaginary.ToString()}`;
     }
 
     constructor(real: Int | Float, img: Imaginary) {
-        super(real.GetValue())
         this.real = real;
         this.imaginary = img;
     }
@@ -389,13 +389,53 @@ class Complex extends amNumber {
     public AddC(other: Complex): Complex {
         return new Complex(this.real.Add(new Float(other.real.GetValue())), this.imaginary.AddImaginary(other.imaginary));
     }
+
+    public SubtractC(other: Complex): Complex {
+        return new Complex(this.real.Subtract(new Float(other.real.GetValue())), this.imaginary.SubtractImaginary(other.imaginary));
+    }
+
+    public GetConjugate(): Complex {
+        return new Complex(this.real, this.imaginary.Negate())
+    }
+
+    public MultiplyC(other: Complex): Complex {
+        return new Complex(
+            this.real.Multiply(new Float(other.real.GetValue())).Add(this.imaginary.MultiplyImaginary(other.imaginary)),
+            this.imaginary.MultiplyS(other.real.ToFloat()).AddImaginary(other.imaginary.MultiplyS(this.real.ToFloat()))
+            );
+    }
+
+    public ToFloat(): Float {
+        if (this.imaginary.ToFloat().IsEqual(new Int(0))) {
+            return new Float(this.real.GetValue())
+        } else {
+            throw new TypeError("Attempt to convert a complex number with non-zero imaginary part to float.")
+        }
+    }
+
+    public DivideS(other: Float): Complex {
+        return new Complex(this.real.Divide(other.Int()), this.imaginary.DivideS(other))
+    }
+
+    public DivideC(other: Complex): Complex {
+        let numerator = this.MultiplyC(other.GetConjugate())
+        let denominator = other.MultiplyC(other.GetConjugate()).ToFloat()
+        return numerator.DivideS(denominator)
+    }
     
 }
 
-let myFraction = new CompositeFraction<Fraction>(
-    new Fraction( new Int(1), new Int(2)),
-    new Fraction( new Int(1), new Int(3)),
-    new Int(2)
-    );
+class Stream<T> {
+    private Conveyor: T[];
+    public Feed(data: T): void {
+        this.Conveyor.push(data);
+    }
+    public Get(): T {
+        while (this.Conveyor.length == 0) {};
+        let to_return: T = this.Conveyor[0];
+        this.Conveyor.shift();
+        return to_return;
+    }
+}
 
-console.log( myFraction.Add(new Float(2.5)) );
+export { Int, Float, Fraction, CompositeFraction, Imaginary, Complex, Numeric, Formattable, BoolConvertible, amNumber, Stream }
