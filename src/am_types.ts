@@ -741,6 +741,13 @@ class TreeNode<T> {
             node.ForEach(f);
         }
     }
+
+    public IsInternal(): boolean {
+        if (this.Children.length > 0) {
+            return true;
+        }
+        return false;
+    }
 }
 
 class Tree<T> {
@@ -752,7 +759,13 @@ class Tree<T> {
             throw new TreeError("Provided root node has parent.")
         }
     }
+    public Size(): number {
+        let size: number = 1
+        this.Root.ForEach(function (_) {size++});
+        return size;
+    }
 }
+
 
 export { Int, Float, Fraction, CompositeFraction, Imaginary, Complex, 
     Numeric, Formattable, BoolConvertible, amNumber, 
