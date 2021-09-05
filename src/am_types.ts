@@ -705,12 +705,14 @@ class TreeNode<T> {
     public Parent: TreeNode<T>;
     public Children: TreeNode<T>[] = [];
     public Value: T;
+    public Level: number;
 
     constructor (parent: TreeNode<T> = null, value: T) {
         if (!(parent == null)) {
             this.Parent = parent;
             this.Parent.Children.push(this);
-        };
+            this.Level = parent.Level + 1;
+        } else {this.Level = 0};
         this.Value = value;
         
     }
@@ -748,6 +750,19 @@ class TreeNode<T> {
         }
         return false;
     }
+
+    public Degree(): number {
+        return this.Children.length;
+    }
+
+    public HasSubchild(subchild: TreeNode<T>): boolean {
+        this.ForEach((node) => {
+            if (node == subchild) {
+                return true;
+            }
+        })
+        return false;
+    }
 }
 
 class Tree<T> {
@@ -763,6 +778,17 @@ class Tree<T> {
         let size: number = 1
         this.Root.ForEach(function (_) {size++});
         return size;
+    }
+    public Degree(): number {
+        let degree: number = 0;
+        this.Root.ForEach(function (i) {i.Degree() > degree ? degree = i.Degree() : () => {}});
+        return degree;
+    }
+
+    public Height(): number {
+        let height: number = 0
+        this.Root.ForEach(function (i) {i.Level > height ? height = i.Level : () => {}});
+        return height;
     }
 }
 
