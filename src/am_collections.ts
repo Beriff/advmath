@@ -302,9 +302,15 @@ class Tree<T> {
     }
 
     public Height(): number {
-        let height: number = 0
+        let height: number = 0;
         this.Root.ForEach(function (i) {i.Level > height ? height = i.Level : () => {}});
         return height;
+    }
+
+    public IsIn(value: T): boolean {
+        let result: boolean = false;
+        this.Root.ForEach(function (i) {i.Value == value ? result = true : () => {}});
+        return result;
     }
 }
 
