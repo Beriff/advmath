@@ -454,12 +454,18 @@ class Modulus {
 }
 
 class Stream<T> {
-    private Conveyor: T[];
-    private Buffer: StreamBuffer<T>
+    private Conveyor: T[] = [];
+    private Buffer: StreamBuffer<T> = new StreamBuffer<T>();
     public Feed(data: T): void {
         this.Conveyor.push(data);
         this.Buffer.Sink(this.Get());
     }
+
+    public FeedC(data: T): Stream<T> {
+        this.Feed(data);
+        return this;
+    }
+
     public Get(): T {
         while (this.Conveyor.length == 0) {};
         let to_return: T = this.Conveyor[0];
@@ -475,7 +481,7 @@ class Stream<T> {
 }
 
 class StreamBuffer<T> {
-    private Buffer: T[];
+    private Buffer: T[] = [];
     public Sink(data: T): void {
         this.Buffer.push(data);
     }
