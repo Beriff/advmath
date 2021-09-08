@@ -488,6 +488,9 @@ class StreamBuffer<T> {
     public ReadBuffer(): T[] {
         return this.Buffer;
     }
+    public Flush(): void {
+        this.Buffer = [];
+    }
 }
 
 export { Int, Float, Fraction, CompositeFraction, Imaginary, Complex, 
