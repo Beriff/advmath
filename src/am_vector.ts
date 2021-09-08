@@ -17,7 +17,7 @@ class VectorError extends Error {
 }
 
 // No Vector<T> for today sorry
-class Vector {
+class Vector implements IClonable<Vector> {
     private Values: number[] = [];
     public Dimensions: Int = new Int(1);
 
