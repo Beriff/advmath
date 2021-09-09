@@ -71,6 +71,18 @@ class Vector implements IClonable<Vector> {
     public static FromArgs(...args: number[]): Vector {
         return Vector.FromArray(args.splice(0, 0));
     }
+
+    public LengthSq(): number {
+        let res: number = 0;
+        for (let i of this.Values) {
+            res += i**2;
+        }
+        return res;
+    }
+
+    public Length(): number {
+        return Math.sqrt(this.LengthSq());
+    }
 }
 
 let vec1 = Vector.FromArray([2, 4, 5]);
